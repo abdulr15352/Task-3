@@ -1,13 +1,20 @@
 Task 2 for Abdul-Rafeh Alvi with email abal015@student.kristiania.no
 
 
-You need to make a .env file with the following environment variables:
+You need to make a .env file with the following environment variables or choose your own:
 
-JWT_SECRET_KEY=choose a secret key for your application to encrypt and decrypt the JWT token
-
-JWT_ALGORITHM=select an algorithm, i used HS256
-
-JWT_EXPIRATION_MINUTES=how long the JWT token remains valid (in minutes)
+JWT_SECRET_KEY=abdul_secret_key
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION_MINUTES=1
+ADMIN_API_TOKEN=abdul_is_admin
+JWT_SECRET_KEY=abdul_secret_key
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION_MINUTES=1
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=VeryStrongPassword
+POSTGRES_DB=voting_app_db
+POSTGRES_HOST=voting_db
+POSTGRES_PORT=5432
 
 # How to run the app
 ## To build the image using Docker run the command:
