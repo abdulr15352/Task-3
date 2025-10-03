@@ -1,6 +1,7 @@
 Task 2 for Abdul-Rafeh Alvi with email abal015@student.kristiania.no
 
 
+## Environment Variables
 You need to make a .env file with the following environment variables or choose your own:
 
 - JWT_SECRET_KEY=abdul_secret_key 
