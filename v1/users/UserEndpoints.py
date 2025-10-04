@@ -4,7 +4,7 @@ from utils.constants import Endpoints, ResponseMessages
 from utils.security import hash_password, verify_password, create_access_token, decode_access_token, verify_admin_token
 from .UserSchemas import UserSchema, UserLoginSchema, UserRegisterResponseSchema, CandidateSchema, VotingSchema, UserUpdateSchema
 from db.DbConfig import get_db
-from db.DBModels import UserDBModel, CandidateDBModel, VoteDBModel
+from db.DbModels import UserDBModel, CandidateDBModel, VoteDBModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -90,7 +90,7 @@ def update_user_info(update_data: UserUpdateSchema, payload = Depends(decode_acc
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
     db.refresh(user)
-    return {"message": "User updated successfully", "user": {"id": user.id, "name": user.name, "email": user.email, "is_active": user.is_active}}
+    return {"message": ResponseMessages.USER_UPDATED, "user": {"id": user.id, "name": user.name, "email": user.email, "is_active": user.is_active}}
 
 @UserRouter.delete(Endpoints.DELETE)
 def delete_user(payload = Depends(decode_access_token), db=Depends(get_db)):
@@ -118,12 +118,12 @@ def vote(candidate: VotingSchema, user = Depends(decode_access_token), db=Depend
     # Check if candidate exists
     existing_candidate = db.query(CandidateDBModel).filter(CandidateDBModel.id == candidate.candidate_id).first()
     if not existing_candidate:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Candidate not found")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ResponseMessages.CANDIDATE_NOT_FOUND)
     # Check if user has already voted
     user_id = user.get("user_id")
     existing_vote = db.query(VoteDBModel).filter(VoteDBModel.user_id == user_id).first()
     if existing_vote:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User has already voted")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ResponseMessages.ALREADY_VOTED)
     # Cast vote
     new_vote = VoteDBModel(user_id=user_id, candidate_id=candidate.candidate_id)
     try:
@@ -146,7 +146,7 @@ def add_candidate(new_candidate: CandidateSchema, db=Depends(get_db)):
         db.commit()
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=" The candidate already exists")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ResponseMessages.CANDIDATE_ALREADY_EXISTS)
     db.refresh(candidate)
     return candidate
 
@@ -164,7 +164,7 @@ def get_vote_counts(db=Depends(get_db)):
 def update_candidate(candidate_id: int, update_data: CandidateSchema, db=Depends(get_db)):
     candidate = db.query(CandidateDBModel).filter(CandidateDBModel.id == candidate_id).first()
     if not candidate:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ResponseMessages.CANDIDATE_NOT_FOUND)
     candidate.name = update_data.name
     candidate.party = update_data.party
     try:
@@ -180,20 +180,20 @@ def update_candidate(candidate_id: int, update_data: CandidateSchema, db=Depends
 def delete_candidate(candidate_id: int, db=Depends(get_db)):
     candidate = db.query(CandidateDBModel).filter(CandidateDBModel.id == candidate_id).first()
     if not candidate:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ResponseMessages.CANDIDATE_NOT_FOUND)
     try:
         db.delete(candidate)
         db.commit()
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-    return {"message": "Candidate deleted successfully"}
+    return {"message": ResponseMessages.CANDIDATE_DELETED, "status": status.HTTP_200_OK}
 
 # get vote count for specific candidate
 @AdminRouter.get(f"{Endpoints.ADD_CANDIDATE}/{{candidate_id}}", dependencies=[Depends(verify_admin_token)])
 def get_candidate_vote_count(candidate_id: int, db=Depends(get_db)):
     candidate = db.query(CandidateDBModel).filter(CandidateDBModel.id == candidate_id).first()
     if not candidate:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Candidate not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ResponseMessages.CANDIDATE_NOT_FOUND)
     vote_count = db.query(func.count(VoteDBModel.id)).filter(VoteDBModel.candidate_id == candidate_id).scalar()
     return {"name": candidate.name, "vote_count": vote_count}

@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException
 from utils.constants import Endpoints, ResponseMessages
 from datetime import datetime, timedelta, timezone
 from db.DbConfig import get_db
-from db.DBModels import UserDBModel
+from db.DbModels import UserDBModel
 from sqlalchemy.orm import Session
 
 settings = Settings()

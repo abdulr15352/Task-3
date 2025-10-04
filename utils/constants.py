@@ -21,4 +21,9 @@ class ResponseMessages:
     INVALID_TOKEN = "Invalid token"
     EXPIRED_TOKEN = "Token has expired"
     USER_DELETED = "User deleted successfully"
+    USER_UPDATED = "User updated successfully"
+    CANDIDATE_NOT_FOUND = "Candidate not found"
+    ALREADY_VOTED = "User has already voted"
+    CANDIDATE_ALREADY_EXISTS = "Candidate with this name already exists"
+    CANDIDATE_DELETED = "Candidate deleted successfully"
     
